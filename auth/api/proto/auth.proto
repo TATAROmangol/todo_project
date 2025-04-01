@@ -1,0 +1,24 @@
+syntax="proto3";
+
+package auth;
+
+option go_package = "github.com/TATAROmangol/auth/pkg/grpc/auth;auth";
+
+service Auth {
+    rpc Register(RegisterRequest) returns (TokenResponse);
+    rpc Login(LoginRequest) returns (TokenResponse);
+}
+
+message RegisterRequest{
+    string login = 1;
+    string password = 2;
+}
+
+message LoginRequest{
+    string login = 1;
+    string password = 2;
+}
+
+message TokenResponse{
+    string token = 1;
+}
