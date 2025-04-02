@@ -1,19 +1,39 @@
 services:
   todo:
-    container_name: server
+    container_name: todo_api
     depends_on:
       postgres:
         condition: service_healthy
     build: 
-      dockerfile: Dockerfile
+      dockerfile: ./todo/Dockerfile
     environment:
       HTTP_PORT: ${HTTP_PORT}
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: ${POSTGRES_PORT}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_SSL: ${POSTGRES_SSL}
+      PG_HOST: postgres
+      PG_PORT: ${PG_PORT}
+      PG_USER: ${PG_USER}
+      PG_PASSWORD: ${PG_PASSWORD}
+      PG_DB: ${PG_DB}
+      PG_SSL: ${PG_SSL}
+    ports:
+      - ${OUT_HTTP_PORT}:${HTTP_PORT}
+
+  auth:
+    container_name: auth
+    depends_on:
+      postgres:
+        condition: service_healthy
+    build: 
+      dockerfile: ./auth/Dockerfile
+    environment:
+      GRPC_HOST: auth
+      GRPC_PORT: ${GRPC_PORT}
+      HTTP_PORT: ${HTTP_PORT}
+      PG_HOST: postgres
+      PG_PORT: ${PG_PORT}
+      PG_USER: ${PG_USER}
+      PG_PASSWORD: ${PG_PASSWORD}
+      PG_DB: ${PG_DB}
+      PG_SSL: ${PG_SSL}
     ports:
       - ${OUT_HTTP_PORT}:${HTTP_PORT}
     
@@ -21,14 +41,14 @@ services:
     image: postgres:latest
     container_name: postgres
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD:  ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-      PGDATA: ${PGDATA}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD:  ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_DB_NAME}
+      PGDATA: ${PG_DATA}
     ports:
-      - ${OUT_POSTGRES_PORT}:${POSTGRES_PORT}
+      - ${OUT_PG_PORT}:${PG_PORT}
     volumes:
-      - ${POSTGRES_VOLUME}:${PGDATA}
+      - ${PG_VOLUME}:${PG_DATA}
     deploy:
       resources:
         limits:
