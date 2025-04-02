@@ -11,6 +11,9 @@ import (
 	"auth/pkg/postgres/migrator"
 	"context"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
 const (
@@ -54,5 +57,33 @@ func main() {
 
 	service := service.NewService(repo, jwt)
 	server := gv1.New(ctx, cfg.GRPC, l, service)
-	server.Run()
+
+	go func(){
+		if err := server.Run(); err != nil{
+			l.ErrorContext(ctx, "failed in run server", "error", err)
+			os.Exit(1)
+		}
+	}()
+
+	c := make(chan os.Signal, 1)
+
+	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+
+	<- c 
+	l.InfoContext(ctx, "start graceful stop")
+
+	
+	timer := time.NewTimer(10 * time.Second)
+
+	go func(){
+		<- timer.C
+		l.ErrorContext(ctx, "failed in run server", "error", err)
+		os.Exit(1)
+	}()
+
+	server.GracefulStop()
+	db.Close()
+	timer.Stop()
+
+	l.InfoContext(ctx, "end graceful stop")
 }
