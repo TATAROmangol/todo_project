@@ -1,3 +1,18 @@
+ifeq ($(MAKECMDGOALS),localRun)
+   include .env
+   export
+   POSTGRES_PORT=${OUT_POSTGRES_PORT}
+endif
+
+run: buildCmd
+	./bin/main
+
+buildCmd: 
+	go build -o ./bin ./cmd/main.go
+
+localRun: buildProto
+	go run ./cmd/main.go
+
 installGRPC:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest 
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest 
