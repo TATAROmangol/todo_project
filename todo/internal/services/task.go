@@ -6,9 +6,9 @@ import (
 )
 
 type Repo interface {
-	Get() ([]entities.Task, error)
-	Create(name string) (entities.Task, error)
-	Remove(id int) error
+	Get(int) ([]entities.Task, error)
+	Create(string, int) (entities.Task, error)
+	Remove(int, int) error
 }
 
 type Service struct {
@@ -20,14 +20,14 @@ func NewService(ctx context.Context, db Repo) *Service {
 	return &Service{ctx, db}
 }
 
-func (tc *Service) GetTasks() ([]entities.Task, error) {
-	return tc.db.Get()
+func (tc *Service) GetTasks(userId int) ([]entities.Task, error) {
+	return tc.db.Get(userId)
 }
 
-func (tc *Service) CreateTask(name string) (entities.Task, error) {
-	return tc.db.Create(name)
+func (tc *Service) CreateTask(name string, userId int) (entities.Task, error) {
+	return tc.db.Create(name, userId)
 }
 
-func (tc *Service) RemoveTask(id int) error {
-	return tc.db.Remove(id)
+func (tc *Service) RemoveTask(id, userId int) error {
+	return tc.db.Remove(id, userId)
 }
