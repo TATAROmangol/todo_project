@@ -10,6 +10,7 @@ import (
 	"todo/internal/repository"
 	service "todo/internal/services"
 	v1 "todo/internal/transport/http/v1"
+	"todo/pkg/jwt"
 	"todo/pkg/logger"
 	"todo/pkg/migrator"
 	"todo/pkg/postgres"
@@ -22,9 +23,12 @@ const (
 func main() {
 	cfg := config.MustLoad()
 
+	jwt.MustLoad()
+
 	ctx := context.Background()
 
 	l := logger.New()
+	ctx = logger.InitFromCtx(ctx, l)
 
 	pq, err := postgres.NewDB(cfg.Repo)
 	if err != nil {
@@ -46,10 +50,10 @@ func main() {
 	}
 	l.InfoContext(ctx, "migrations complete")
 
-	taskRepo := repository.NewRepository(ctx, pq)
-	taskService := service.NewService(ctx, taskRepo)
+	taskRepo := repository.NewRepository(pq)
+	taskService := service.NewService(taskRepo)
 
-	router := v1.New(ctx, cfg.Http, l, taskService)
+	router := v1.New(ctx, cfg.Http, taskService)
 
 	go func() {
 		if err := router.Run(); err != nil {

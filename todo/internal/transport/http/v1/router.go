@@ -13,37 +13,36 @@ type Service interface {
 type Router struct {
 	ctx context.Context
 	cfg Config
-	l *logger.Logger
 	srv *http.Server
 }
 
-func New(ctx context.Context, cfg Config, log *logger.Logger, cases Service) *Router {
+func New(ctx context.Context, cfg Config, cases Service) *Router {
 	ctx = logger.AppendCtx(ctx, "path", cfg.Address)
-	
-	th := NewTaskHandler(ctx, cases)
+
+	th := NewTaskHandler(cases)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/post", th.Post)
-	mux.HandleFunc("/delete", th.Remove)
-	mux.HandleFunc("/get", th.Get)
+	mux.HandleFunc("/post", InitLoggerCtx(ctx, Operation(Auth(th.Post))))
+	mux.HandleFunc("/delete", InitLoggerCtx(ctx, Operation(Auth(th.Remove))))
+	mux.HandleFunc("/get", InitLoggerCtx(ctx, Operation(Auth(th.Get))))
 
 	srv := &http.Server{
-		Addr: cfg.Address,
+		Addr:    cfg.Address,
 		Handler: mux,
 	}
-	return &Router{ctx, cfg, log, srv}
+	return &Router{ctx, cfg, srv}
 }
 
-func (r *Router) Run() error{
-	r.l.InfoContext(r.ctx, "Run server")
-	if err := r.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed{
+func (r *Router) Run() error {
+	logger.GetFromCtx(r.ctx).InfoContext(r.ctx, "Run server")
+	if err := r.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		return err
 	}
 	return nil
 }
 
-func (r *Router) Shutdown(ctx context.Context) error{
-	if err := r.srv.Shutdown(ctx); err != nil{
+func (r *Router) Shutdown(ctx context.Context) error {
+	if err := r.srv.Shutdown(ctx); err != nil {
 		return err
 	}
 	return nil

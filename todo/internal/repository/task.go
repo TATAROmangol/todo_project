@@ -9,15 +9,14 @@ import (
 )
 
 type Repository struct {
-	ctx context.Context
 	db  *sql.DB
 }
 
-func NewRepository(ctx context.Context, db *sql.DB) *Repository {
-	return &Repository{ctx, db}
+func NewRepository(db *sql.DB) *Repository {
+	return &Repository{db}
 }
 
-func (r *Repository) Get(user_id int) ([]entities.Task, error) {
+func (r *Repository) Get(ctx context.Context, userId int) ([]entities.Task, error) {
 	stmt, err := r.db.Prepare(`
 		SELECT id, name 
 		  FROM tasks
@@ -29,7 +28,7 @@ func (r *Repository) Get(user_id int) ([]entities.Task, error) {
 	defer stmt.Close()
 
 	var res []entities.Task
-	rows, err := stmt.Query(user_id)
+	rows, err := stmt.Query(userId)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +42,7 @@ func (r *Repository) Get(user_id int) ([]entities.Task, error) {
 	return res, nil
 }
 
-func (r *Repository) Create(name string, user_id int) (entities.Task, error) {
+func (r *Repository) Create(ctx context.Context, name string, userId int) (entities.Task, error) {
 	stmt, err := r.db.Prepare(`
 		INSERT INTO tasks(name)
 		VALUES ($1, $2) RETURNING id
@@ -54,14 +53,14 @@ func (r *Repository) Create(name string, user_id int) (entities.Task, error) {
 	defer stmt.Close()
 
 	var id int
-	if err := stmt.QueryRow(name, user_id).Scan(&id); err != nil {
+	if err := stmt.QueryRow(name, userId).Scan(&id); err != nil {
 		return entities.Task{}, err
 	}
 
 	return entities.Task{Id: id, Name: name}, nil
 }
 
-func (r *Repository) Remove(id, user_id int) error {
+func (r *Repository) Remove(ctx context.Context, id, userId int) error {
 	stmt, err := r.db.Prepare(`
 		DELETE FROM tasks 
 		WHERE id = $1 AND user_id=$2
@@ -71,7 +70,7 @@ func (r *Repository) Remove(id, user_id int) error {
 	}
 	defer stmt.Close()
 
-	if _, err := stmt.Exec(id, user_id); err != nil {
+	if _, err := stmt.Exec(id, userId); err != nil {
 		return err
 	}
 

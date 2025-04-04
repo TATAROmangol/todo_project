@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func WriteError(w http.ResponseWriter, err error, code int){
+func WriteError(w http.ResponseWriter, err error, code int) {
 	response := map[string]string{"error": err.Error()}
 	info, _ := json.Marshal(response)
 

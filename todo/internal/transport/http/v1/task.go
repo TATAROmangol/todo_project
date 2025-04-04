@@ -8,18 +8,17 @@ import (
 )
 
 type TaskService interface {
-	GetTasks() ([]entities.Task, error)
-	CreateTask(name string) (entities.Task, error)
-	RemoveTask(id int) error
+	GetTasks(ctx context.Context, userId int) ([]entities.Task, error)
+	CreateTask(ctx context.Context, name string, userId int) (entities.Task, error)
+	RemoveTask(ctx context.Context, id, userId int) error
 }
 
 type TaskHandler struct {
-	ctx context.Context
-	ts  TaskService
+	ts TaskService
 }
 
-func NewTaskHandler(ctx context.Context, ts TaskService) *TaskHandler {
-	return &TaskHandler{ctx, ts}
+func NewTaskHandler(ts TaskService) *TaskHandler {
+	return &TaskHandler{ts}
 }
 
 type CreateReq struct {
@@ -39,7 +38,9 @@ func (th *TaskHandler) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err := th.ts.CreateTask(req.Name)
+	userId := r.Context().Value(UserIdKey).(int)
+
+	task, err := th.ts.CreateTask(r.Context(), req.Name, userId)
 	if err != nil {
 		WriteError(w, err, 404)
 		return
@@ -64,7 +65,9 @@ func (th *TaskHandler) Remove(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	if err := th.ts.RemoveTask(task.Id); err != nil {
+	userId := r.Context().Value(UserIdKey).(int)
+
+	if err := th.ts.RemoveTask(r.Context(), task.Id, userId); err != nil {
 		WriteError(w, err, 404)
 		return
 	}
@@ -75,7 +78,9 @@ func (th *TaskHandler) Get(w http.ResponseWriter, r *http.Request) {
 		WriteError(w, nil, http.StatusMethodNotAllowed)
 	}
 
-	tasks, err := th.ts.GetTasks()
+	userId := r.Context().Value(UserIdKey).(int)
+
+	tasks, err := th.ts.GetTasks(r.Context(), userId)
 	if err != nil {
 		WriteError(w, err, 404)
 		return
