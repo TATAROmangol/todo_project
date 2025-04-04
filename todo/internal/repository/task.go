@@ -8,19 +8,19 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type Repository struct{
-	ctx context.Context
-	db *sql.DB
+type Repository struct {
+	db  *sql.DB
 }
 
-func NewRepository(ctx context.Context, db *sql.DB) *Repository{
-	return &Repository{ctx, db}
+func NewRepository(db *sql.DB) *Repository {
+	return &Repository{db}
 }
 
-func (r *Repository) Get() ([]entities.Task, error) {
+func (r *Repository) Get(ctx context.Context, userId int) ([]entities.Task, error) {
 	stmt, err := r.db.Prepare(`
 		SELECT id, name 
 		  FROM tasks
+		WHERE user_id = $1
 	`)
 	if err != nil {
 		return nil, err
@@ -28,7 +28,7 @@ func (r *Repository) Get() ([]entities.Task, error) {
 	defer stmt.Close()
 
 	var res []entities.Task
-	rows, err := stmt.Query()
+	rows, err := stmt.Query(userId)
 	if err != nil {
 		return nil, err
 	}
@@ -42,10 +42,10 @@ func (r *Repository) Get() ([]entities.Task, error) {
 	return res, nil
 }
 
-func (r *Repository) Create(name string) (entities.Task, error) {
+func (r *Repository) Create(ctx context.Context, name string, userId int) (entities.Task, error) {
 	stmt, err := r.db.Prepare(`
 		INSERT INTO tasks(name)
-		VALUES ($1) RETURNING id
+		VALUES ($1, $2) RETURNING id
 	`)
 	if err != nil {
 		return entities.Task{}, err
@@ -53,21 +53,24 @@ func (r *Repository) Create(name string) (entities.Task, error) {
 	defer stmt.Close()
 
 	var id int
-    if err := stmt.QueryRow(name).Scan(&id); err != nil {
-        return entities.Task{}, err
-    }
+	if err := stmt.QueryRow(name, userId).Scan(&id); err != nil {
+		return entities.Task{}, err
+	}
 
-    return entities.Task{Id: id, Name: name}, nil
+	return entities.Task{Id: id, Name: name}, nil
 }
 
-func (r *Repository) Remove(id int) error {
-	stmt, err := r.db.Prepare(`DELETE FROM tasks WHERE id = $1`)
+func (r *Repository) Remove(ctx context.Context, id, userId int) error {
+	stmt, err := r.db.Prepare(`
+		DELETE FROM tasks 
+		WHERE id = $1 AND user_id=$2
+		`)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	if _, err := stmt.Exec(id); err != nil {
+	if _, err := stmt.Exec(id, userId); err != nil {
 		return err
 	}
 

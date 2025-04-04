@@ -17,38 +17,38 @@ type Config struct {
 }
 
 func MustLoadConfig() Config {
-	host, exist := os.LookupEnv("POSTGRES_HOST")
+	host, exist := os.LookupEnv("PG_HOST")
 	if !exist {
-		log.Fatal("no found env POSTGRES_HOST")
+		log.Fatal("no found env PG_HOST")
 	}
 
-	sPort, exist := os.LookupEnv("POSTGRES_PORT")
+	sPort, exist := os.LookupEnv("PG_PORT")
 	if !exist {
-		log.Fatal("no found env POSTGRES_PORT")
+		log.Fatal("no found env PG_PORT")
 	}
 	port, err := strconv.Atoi(sPort)
 	if err != nil {
-		log.Fatal("invalid env POSTGRES_PORT")
+		log.Fatal("invalid env PG_PORT")
 	}
 
-	user, exist := os.LookupEnv("POSTGRES_USER")
+	user, exist := os.LookupEnv("PG_USER")
 	if !exist {
-		log.Fatal("no found env POSTGRES_USER")
+		log.Fatal("no found env PG_USER")
 	}
 
-	password, exist := os.LookupEnv("POSTGRES_PASSWORD")
+	password, exist := os.LookupEnv("PG_PASSWORD")
 	if !exist {
-		log.Fatal("no found env POSTGRES_PASSWORD")
+		log.Fatal("no found env PG_PASSWORD")
 	}
 
-	dbName, exist := os.LookupEnv("POSTGRES_DB")
+	dbName, exist := os.LookupEnv("PG_DB")
 	if !exist {
-		log.Fatal("no found env POSTGRES_DB")
+		log.Fatal("no found env PG_DB")
 	}
 
-	ssl, exist := os.LookupEnv("POSTGRES_SSL")
+	ssl, exist := os.LookupEnv("PG_SSL")
 	if !exist {
-		log.Fatal("no found env POSTGRES_SSL")
+		log.Fatal("no found env PG_SSL")
 	}
 
 	return Config{
