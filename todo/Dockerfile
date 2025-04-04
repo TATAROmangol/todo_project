@@ -3,12 +3,12 @@ FROM golang:1.23.1-alpine3.20
 RUN apk add --no-cache \
     make
 
-WORKDIR /todo
+WORKDIR /app
 
 COPY go.mod go.sum ./
 RUN go mod download
 
-COPY . ./
+COPY . .
 
 RUN make build 
 

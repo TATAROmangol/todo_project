@@ -16,7 +16,7 @@ var (
 func MustLoad() {
 	key, exist := os.LookupEnv("JWT_KEY")
 	if !exist {
-		log.Fatal("no found env HTTP_PORT")
+		log.Fatal("no found env JWT_KEY")
 	}
 
 	Key = key

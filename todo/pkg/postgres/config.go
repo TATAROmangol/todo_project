@@ -41,9 +41,9 @@ func MustLoadConfig() Config {
 		log.Fatal("no found env PG_PASSWORD")
 	}
 
-	dbName, exist := os.LookupEnv("PG_DB")
+	dbName, exist := os.LookupEnv("PG_DB_NAME")
 	if !exist {
-		log.Fatal("no found env PG_DB")
+		log.Fatal("no found env PG_DB_NAME")
 	}
 
 	ssl, exist := os.LookupEnv("PG_SSL")

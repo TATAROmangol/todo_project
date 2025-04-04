@@ -1,11 +1,11 @@
-FROM golang:1.23.1-alpine3.20
+FROM golang:1.24.1-alpine3.20
 
 RUN apk add --no-cache \
     make
 
-WORKDIR /auth
+WORKDIR /todo
 
-COPY .mod .sum ./
+COPY go.mod go.sum ./
 
 RUN go mod download 
 
