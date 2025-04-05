@@ -17,8 +17,6 @@ type Router struct {
 }
 
 func New(ctx context.Context, cfg Config, cases Service) *Router {
-	ctx = logger.AppendCtx(ctx, "path", cfg.Address)
-
 	th := NewTaskHandler(cases)
 
 	mux := http.NewServeMux()
@@ -34,7 +32,7 @@ func New(ctx context.Context, cfg Config, cases Service) *Router {
 }
 
 func (r *Router) Run() error {
-	logger.GetFromCtx(r.ctx).InfoContext(r.ctx, "Run server")
+	logger.GetFromCtx(r.ctx).InfoContext(r.ctx, "Run http", "path",r.cfg.Address)
 	if err := r.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		return err
 	}

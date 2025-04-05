@@ -11,10 +11,11 @@ RUN go mod download
 
 COPY . ./
 
-RUN make buildProto 
+RUN apk add --no-cache protobuf-dev
+RUN make buildCmd 
 
-EXPOSE 50052
+EXPOSE 50050
 
-RUN make run
+CMD ["./bin/main"]
 
 
