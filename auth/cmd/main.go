@@ -26,6 +26,7 @@ func main() {
 	ctx := context.Background()
 
 	l := logger.New()
+	ctx = logger.InitFromCtx(ctx, l)
 
 	db, err := postgres.NewConnect(cfg.PG)
 	if err != nil {
@@ -56,7 +57,7 @@ func main() {
 	}
 
 	service := service.NewService(repo, jwt)
-	server := gv1.New(ctx, cfg.GRPC, l, service)
+	server := gv1.New(ctx, cfg.GRPC, service)
 
 	go func(){
 		if err := server.Run(); err != nil{

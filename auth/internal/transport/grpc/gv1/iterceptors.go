@@ -8,7 +8,30 @@ import (
 	"google.golang.org/grpc"
 )
 
-func LoggerInterceptor(pCtx context.Context, l *logger.Logger) func(
+func InitLogger(pCtx context.Context) func(
+	ctx context.Context,
+	req any,
+	info *grpc.UnaryServerInfo,
+	handler grpc.UnaryHandler) (any, error) {
+	return func(
+		ctx context.Context,
+		req any,
+		info *grpc.UnaryServerInfo,
+		handler grpc.UnaryHandler) (any, error) {
+
+		ctx = logger.InitFromCtx(ctx, logger.GetFromCtx(pCtx))
+
+		resp, err := handler(ctx, req)
+		if err != nil {
+			logger.GetFromCtx(ctx).ErrorContext(ctx, "error", err)
+			return nil, err
+		}
+
+		return resp, nil
+	}
+}
+
+func Operation() func(
 	ctx context.Context,
 	req any,
 	info *grpc.UnaryServerInfo,
@@ -20,14 +43,14 @@ func LoggerInterceptor(pCtx context.Context, l *logger.Logger) func(
 		handler grpc.UnaryHandler) (any, error) {
 
 		operatiodID := uuid.New()
-		pCtx = logger.AppendCtx(pCtx, "operation_id", operatiodID.String())
-		pCtx = logger.AppendCtx(pCtx, "method", info.FullMethod)
+		ctx = logger.AppendCtx(ctx, "operation_id", operatiodID.String())
+		ctx = logger.AppendCtx(ctx, "method", info.FullMethod)
 
-		l.InfoContext(pCtx, "grpc server call")
+		logger.GetFromCtx(ctx).InfoContext(ctx, "grpc server call")
 
 		resp, err := handler(ctx, req)
 		if err != nil {
-			l.ErrorContext(pCtx, "error", err)
+			logger.GetFromCtx(ctx).ErrorContext(ctx, "error", err)
 			return nil, err
 		}
 

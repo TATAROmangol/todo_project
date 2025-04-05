@@ -9,31 +9,34 @@ import (
 	"google.golang.org/grpc"
 )
 
-type Server struct{
-	ctx context.Context
-	cfg Config
+type Server struct {
+	ctx    context.Context
+	cfg    Config
 	server *grpc.Server
 }
 
-func New(ctx context.Context, cfg Config, l *logger.Logger, service Auth) *Server{
+func New(ctx context.Context, cfg Config, service Auth) *Server {
 	server := grpc.NewServer(
-		grpc.UnaryInterceptor(LoggerInterceptor(ctx, l)),
+		grpc.ChainUnaryInterceptor(
+			InitLogger(ctx),
+			Operation(),
+		),
 	)
 	Register(server, service)
 
 	return &Server{ctx: ctx, cfg: cfg, server: server}
 }
 
-func (s *Server) Run() error{
-	logger.GetFromCtx(s.ctx).InfoContext(s.ctx, "Run http", "path",s.cfg.GetConnectPath())
+func (s *Server) Run() error {
+	logger.GetFromCtx(s.ctx).InfoContext(s.ctx, "Run http", "path", s.cfg.GetConnectPath())
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("%v:%v", s.cfg.Host, s.cfg.Port))
-	if err != nil{
+	if err != nil {
 		return fmt.Errorf("failed create listener from grpc: %v", err)
 	}
 
 	err = s.server.Serve(lis)
-	if err != nil{
+	if err != nil {
 		return fmt.Errorf("failed in grpc server: %v", err)
 	}
 
