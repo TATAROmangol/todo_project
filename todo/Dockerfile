@@ -3,13 +3,14 @@ FROM golang:1.23.1-alpine3.20
 RUN apk add --no-cache \
     make
 
-WORKDIR /app
+WORKDIR /todo
 
 COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
 
-RUN make build 
+RUN apk add --no-cache protobuf-dev
+RUN make buildCmd
 
 CMD [ "./bin/main" ]

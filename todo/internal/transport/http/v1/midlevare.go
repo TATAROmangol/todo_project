@@ -8,6 +8,10 @@ import (
 	"github.com/google/uuid"
 )
 
+type Auther interface{
+	GetId(context.Context, string) (int, error)
+}
+
 func InitLoggerCtx(ctx context.Context, h func(w http.ResponseWriter, r *http.Request)) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		r = r.WithContext(ctx)
@@ -29,7 +33,7 @@ func Operation(h func(w http.ResponseWriter, r *http.Request)) func(http.Respons
 	}
 }
 
-func Auth(h func(w http.ResponseWriter, r *http.Request)) func(http.ResponseWriter, *http.Request) {
+func Auth(auther Auther, h func(w http.ResponseWriter, r *http.Request)) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("user_jwt")
 		if err != nil{
@@ -37,9 +41,9 @@ func Auth(h func(w http.ResponseWriter, r *http.Request)) func(http.ResponseWrit
 			return
 		}
 
-		id, err := jwt.GetId(cookie.Value)
+		id, err := auther.GetId(r.Context(), cookie.Value)
 		if err != nil{
-			logger.GetFromCtx(r.Context()).ErrorContext(r.Context(), "", "error", err)
+			logger.GetFromCtx(r.Context()).ErrorContext(r.Context(), "failed in auth", "error", err)
 			return
 		}
 

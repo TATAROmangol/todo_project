@@ -9,6 +9,7 @@ import (
 	"todo/internal/config"
 	"todo/internal/repository"
 	service "todo/internal/services"
+	"todo/internal/transport/grpc/auth"
 	v1 "todo/internal/transport/http/v1"
 	"todo/pkg/logger"
 	"todo/pkg/migrator"
@@ -50,7 +51,13 @@ func main() {
 	taskRepo := repository.NewRepository(pq)
 	taskService := service.NewService(taskRepo)
 
-	router := v1.New(ctx, cfg.Http, taskService)
+	auther, err := auth.NewAuthClient(ctx, cfg.Auth)
+	if err != nil{
+		l.ErrorContext(ctx, "failed in up migrate", "error", err)
+		os.Exit(1)
+	}
+
+	router := v1.New(ctx, cfg.Http, taskService, auther)
 
 	go func() {
 		if err := router.Run(); err != nil {

@@ -16,13 +16,13 @@ type Router struct {
 	srv *http.Server
 }
 
-func New(ctx context.Context, cfg Config, cases Service) *Router {
+func New(ctx context.Context, cfg Config, cases Service, auther Auther) *Router {
 	th := NewTaskHandler(cases)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/post", InitLoggerCtx(ctx, Operation(Auth(th.Post))))
-	mux.HandleFunc("/delete", InitLoggerCtx(ctx, Operation(Auth(th.Remove))))
-	mux.HandleFunc("/get", InitLoggerCtx(ctx, Operation(Auth(th.Get))))
+	mux.HandleFunc("/post", InitLoggerCtx(ctx, Operation(Auth(auther, th.Post))))
+	mux.HandleFunc("/delete", InitLoggerCtx(ctx, Operation(Auth(auther, th.Remove))))
+	mux.HandleFunc("/get", InitLoggerCtx(ctx, Operation(Auth(auther, th.Get))))
 
 	srv := &http.Server{
 		Addr:    cfg.Address,

@@ -1,0 +1,18 @@
+syntax="proto3";
+
+package auth;
+
+option go_package = "github.com/TATAROmangol/auth/pkg/grpc/auth;auth";
+
+service Auth {
+    rpc GetId(JWTRequest) returns (IdResponse);
+}
+
+message JWTRequest{
+    string token = 1;
+}
+
+message IdResponse{
+    int64 id = 1;
+}
+

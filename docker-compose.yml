@@ -8,6 +8,8 @@ services:
       context: ./todo
       dockerfile: Dockerfile
     environment:
+      NGINX_HOST: ${NGINX_HOST}
+      NGINX_PORT: ${NGINX_PORT}
       HTTP_HOST: ${HTTP_HOST_TODO}
       HTTP_PORT: ${HTTP_PORT_TODO}
       JWT_KEY: ${JWT_KEY}

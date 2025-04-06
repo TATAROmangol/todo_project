@@ -7,7 +7,7 @@ endif
 run: buildCmd
 	./bin/main
 
-buildCmd: 
+buildCmd: buildProto
 	go build -o ./bin ./cmd/main.go
 
 localRun: buildProto
