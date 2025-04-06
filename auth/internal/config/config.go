@@ -2,28 +2,36 @@ package config
 
 import (
 	"auth/internal/transport/grpc/gv1"
+	v1 "auth/internal/transport/http/v1"
 	"auth/pkg/postgres"
 	"log"
 )
 
 type Config struct {
+	HTTP v1.Config
 	GRPC gv1.Config
 	PG   postgres.Config
 }
 
 func MustLoad() Config {
-	grpcCfg, err := gv1.LoadConfig()
+	http, err := v1.Load()
+	if err != nil {
+		log.Fatalf("failed to load http config: %v", err)
+	}
+
+	grpc, err := gv1.Load()
 	if err != nil {
 		log.Fatalf("failed to load grpc config: %v", err)
 	}
 
-	pgCfg, err := postgres.LoadConfig()
+	pg, err := postgres.Load()
 	if err != nil {
 		log.Fatalf("failed to load postgres config: %v", err)
 	}
 
 	return Config{
-		GRPC: grpcCfg,
-		PG:   pgCfg,
+		HTTP: http,
+		GRPC: grpc,
+		PG:   pg,
 	}
 }

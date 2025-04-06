@@ -12,6 +12,4 @@ COPY . .
 
 RUN make build 
 
-EXPOSE 80
-
 CMD [ "./bin/main" ]

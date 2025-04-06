@@ -14,8 +14,6 @@ COPY . ./
 RUN apk add --no-cache protobuf-dev
 RUN make buildCmd 
 
-EXPOSE 50050
-
 CMD ["./bin/main"]
 
 

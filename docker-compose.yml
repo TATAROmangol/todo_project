@@ -8,8 +8,8 @@ services:
       context: ./todo
       dockerfile: Dockerfile
     environment:
-      HTTP_HOST: ${HTTP_HOST}
-      HTTP_PORT: ${HTTP_PORT}
+      HTTP_HOST: ${HTTP_HOST_TODO}
+      HTTP_PORT: ${HTTP_PORT_TODO}
       JWT_KEY: ${JWT_KEY}
       PG_HOST: postgres
       PG_PORT: ${PG_PORT}
@@ -18,7 +18,7 @@ services:
       PG_DB_NAME: ${PG_DB_NAME}
       PG_SSL: ${PG_SSL}
     ports:
-      - ${OUT_HTTP_PORT}:${HTTP_PORT}
+      - ${OUT_HTTP_PORT_TODO}:${HTTP_PORT_TODO}
 
   auth:
     container_name: auth
@@ -29,6 +29,8 @@ services:
       context: ./auth
       dockerfile: Dockerfile
     environment:
+      HTTP_HOST: ${HTTP_HOST_AUTH}
+      HTTP_PORT: ${HTTP_PORT_AUTH}
       GRPC_HOST: ${GRPC_HOST}
       GRPC_PORT: ${GRPC_PORT}
       JWT_KEY: ${JWT_KEY}
@@ -39,6 +41,7 @@ services:
       PG_DB_NAME: ${PG_DB_NAME}
       PG_SSL: ${PG_SSL}
     ports:
+      - ${OUT_HTTP_PORT_AUTH}:${HTTP_PORT_AUTH}
       - ${OUT_GRPC_PORT}:${GRPC_PORT}
     
   postgres:

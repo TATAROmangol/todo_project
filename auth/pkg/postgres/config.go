@@ -12,10 +12,10 @@ type Config struct {
 	User     string
 	Password string
 	DBName   string
-	SSL string
+	SSL      string
 }
 
-func LoadConfig() (Config, error){
+func Load() (Config, error) {
 	host, exist := os.LookupEnv("PG_HOST")
 	if !exist {
 		return Config{}, fmt.Errorf("failed load PG_HOST")
@@ -26,7 +26,7 @@ func LoadConfig() (Config, error){
 		return Config{}, fmt.Errorf("failed load PG_PORT")
 	}
 	port, err := strconv.Atoi(sPort)
-	if err != nil{
+	if err != nil {
 		return Config{}, fmt.Errorf("failed load PG_PORT: %v", err)
 	}
 

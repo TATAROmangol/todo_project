@@ -1,7 +1,6 @@
 package gv1
 
 import (
-	"auth/internal/errors"
 	ssov1 "auth/pkg/grpc/auth"
 	"context"
 	"fmt"
@@ -9,11 +8,8 @@ import (
 	"google.golang.org/grpc"
 )
 
-//go:generate mockery --all --output=./mocks
-
 type Auth interface {
-	Register(string, string) (string, error)
-	Login(string, string) (string, error)
+	GetId(string) (int, error)
 }
 
 type Api struct {
@@ -25,40 +21,18 @@ func Register(gRPCServer *grpc.Server, service Auth) {
 	ssov1.RegisterAuthServer(gRPCServer, &Api{service: service})
 }
 
-func (s *Api) Login(
+func (s *Api) GetId(
 	ctx context.Context,
-	in *ssov1.LoginRequest,
-) (*ssov1.TokenResponse, error) {
-	if in.GetLogin() == ""{
-		return nil, fmt.Errorf("")
-	}
-	if in.GetPassword() == ""{
+	in *ssov1.JWTRequest,
+) (*ssov1.IdResponse, error) {
+	if in.GetToken() == ""{
 		return nil, fmt.Errorf("")
 	}
 
-	token, err := s.service.Login(in.Login, in.Password)
+	id, err := s.service.GetId(in.Token)
 	if err != nil{
 		return nil, err
 	}
 
-	return &ssov1.TokenResponse{Token: token}, nil
-}
-
-func (s *Api) Register(
-	ctx context.Context,
-	in *ssov1.RegisterRequest,
-) (*ssov1.TokenResponse, error) {
-	if in.GetLogin() == ""{
-		return nil, errors.ErrInvalidLogin
-	}
-	if in.GetPassword() == ""{
-		return nil, errors.ErrInvalidPassword
-	}
-
-	token, err := s.service.Register(in.Login, in.Password)
-	if err != nil{
-		return nil, err
-	}
-
-	return &ssov1.TokenResponse{Token: token}, nil
+	return &ssov1.IdResponse{Id: int64(id)}, nil
 }

@@ -5,20 +5,14 @@ package auth;
 option go_package = "github.com/TATAROmangol/auth/pkg/grpc/auth;auth";
 
 service Auth {
-    rpc Register(RegisterRequest) returns (TokenResponse);
-    rpc Login(LoginRequest) returns (TokenResponse);
+    rpc GetId(JWTRequest) returns (IdResponse);
 }
 
-message RegisterRequest{
-    string login = 1;
-    string password = 2;
-}
-
-message LoginRequest{
-    string login = 1;
-    string password = 2;
-}
-
-message TokenResponse{
+message JWTRequest{
     string token = 1;
 }
+
+message IdResponse{
+    int64 id = 1;
+}
+

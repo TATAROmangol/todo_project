@@ -5,6 +5,7 @@ import (
 	"auth/internal/repository"
 	"auth/internal/service"
 	"auth/internal/transport/grpc/gv1"
+	v1 "auth/internal/transport/http/v1"
 	"auth/pkg/jwt"
 	"auth/pkg/logger"
 	"auth/pkg/postgres"
@@ -57,14 +58,22 @@ func main() {
 	}
 
 	service := service.NewService(repo, jwt)
-	server := gv1.New(ctx, cfg.GRPC, service)
+	grpcServer := gv1.New(ctx, cfg.GRPC, &service.Getter)
+	httpServer := v1.New(ctx, cfg.HTTP, &service.Auth)
 
 	go func(){
-		if err := server.Run(); err != nil{
+		if err := grpcServer.Run(); err != nil{
 			l.ErrorContext(ctx, "failed in run server", "error", err)
 			os.Exit(1)
 		}
 	}()
+
+	go func(){
+		if err := httpServer.Run(); err != nil{
+			l.ErrorContext(ctx, "failed in run server", "error", err)
+			os.Exit(1)
+		}
+	}()	
 
 	c := make(chan os.Signal, 1)
 
@@ -82,7 +91,8 @@ func main() {
 		os.Exit(1)
 	}()
 
-	server.GracefulStop()
+	httpServer.Shutdown(ctx)
+	grpcServer.GracefulStop()
 	db.Close()
 	timer.Stop()
 

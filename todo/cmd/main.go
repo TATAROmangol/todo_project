@@ -10,7 +10,6 @@ import (
 	"todo/internal/repository"
 	service "todo/internal/services"
 	v1 "todo/internal/transport/http/v1"
-	"todo/pkg/jwt"
 	"todo/pkg/logger"
 	"todo/pkg/migrator"
 	"todo/pkg/postgres"
@@ -22,8 +21,6 @@ const (
 
 func main() {
 	cfg := config.MustLoad()
-
-	jwt.MustLoad()
 
 	ctx := context.Background()
 

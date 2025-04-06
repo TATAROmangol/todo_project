@@ -6,23 +6,23 @@ import (
 	"strconv"
 )
 
-type Config struct{
-	Host string 
+type Config struct {
+	Host string
 	Port int
 }
 
-func LoadConfig() (Config, error){
+func Load() (Config, error) {
 	host, exist := os.LookupEnv("GRPC_HOST")
-	if !exist{
+	if !exist {
 		return Config{}, fmt.Errorf("failed to load GRPC_HOST")
 	}
 
 	sPort, exist := os.LookupEnv("GRPC_PORT")
-	if !exist{
+	if !exist {
 		return Config{}, fmt.Errorf("failed to load GRPC_PORT")
 	}
 	port, err := strconv.Atoi(sPort)
-	if err != nil{
+	if err != nil {
 		return Config{}, fmt.Errorf("failed to load GRPC_PORT")
 	}
 
@@ -32,6 +32,6 @@ func LoadConfig() (Config, error){
 	}, nil
 }
 
-func (cfg Config) GetConnectPath() string{
+func (cfg Config) GetConnectPath() string {
 	return fmt.Sprintf("%v:%v", cfg.Host, cfg.Port)
 }

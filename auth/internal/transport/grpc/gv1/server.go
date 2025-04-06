@@ -28,7 +28,7 @@ func New(ctx context.Context, cfg Config, service Auth) *Server {
 }
 
 func (s *Server) Run() error {
-	logger.GetFromCtx(s.ctx).InfoContext(s.ctx, "Run http", "path", s.cfg.GetConnectPath())
+	logger.GetFromCtx(s.ctx).InfoContext(s.ctx, "Run grpc", "path", s.cfg.GetConnectPath())
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("%v:%v", s.cfg.Host, s.cfg.Port))
 	if err != nil {
