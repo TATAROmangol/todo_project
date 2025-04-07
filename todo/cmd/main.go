@@ -30,20 +30,20 @@ func main() {
 
 	pq, err := postgres.NewDB(cfg.Repo)
 	if err != nil {
-		l.ErrorContext(ctx, "failed in initialize storage", "error", err)
+		l.ErrorContext(ctx, "failed in initialize storage", err)
 		os.Exit(1)
 	}
 	l.InfoContext(ctx, "database loaded")
 
 	m, err := migrator.New(migrationPath, cfg.Repo)
 	if err != nil {
-		l.ErrorContext(ctx, "failed in create migrator", "error", err)
+		l.ErrorContext(ctx, "failed in create migrator", err)
 		os.Exit(1)
 	}
 	l.InfoContext(ctx, "migrator loaded")
 
 	if err := m.Up(); err != nil {
-		l.ErrorContext(ctx, "failed in up migrate", "error", err)
+		l.ErrorContext(ctx, "failed in up migrate", err)
 		os.Exit(1)
 	}
 	l.InfoContext(ctx, "migrations complete")
@@ -57,7 +57,7 @@ func main() {
 
 	go func() {
 		if err := router.Run(); err != nil {
-			l.ErrorContext(ctx, "failed in server", "error", err)
+			l.ErrorContext(ctx, "failed in server", err)
 			os.Exit(1)
 		}
 	}()

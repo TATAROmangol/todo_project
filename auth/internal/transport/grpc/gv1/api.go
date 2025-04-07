@@ -10,7 +10,7 @@ import (
 )
 
 type Auth interface {
-	GetId(string) (int, error)
+	GetId(context.Context, string) (int, error)
 }
 
 type Api struct {
@@ -30,7 +30,7 @@ func (s *Api) GetId(
 		return nil, fmt.Errorf("")
 	}
 
-	id, err := s.service.GetId(in.Token)
+	id, err := s.service.GetId(ctx, in.Token)
 	if err != nil{
 		return nil, err
 	}

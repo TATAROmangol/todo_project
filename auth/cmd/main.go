@@ -31,20 +31,20 @@ func main() {
 
 	db, err := postgres.NewConnect(cfg.PG)
 	if err != nil {
-		l.ErrorContext(ctx, "failed to connect postgres", "err", err)
+		l.ErrorContext(ctx, "failed to connect postgres", err)
 		os.Exit(1)
 	}
 	defer db.Close()
 
 	m, err := migrator.New(migrationPath, cfg.PG)
 	if err != nil {
-		l.ErrorContext(ctx, "failed in create migrator", "error", err)
+		l.ErrorContext(ctx, "failed in create migrator", err)
 		os.Exit(1)
 	}
 	l.InfoContext(ctx, "migrator loaded")
 
 	if err := m.Up(); err != nil {
-		l.ErrorContext(ctx, "failed in up migrate", "error", err)
+		l.ErrorContext(ctx, "failed in up migrate", err)
 		os.Exit(1)
 	}
 	l.InfoContext(ctx, "migrations complete")
@@ -53,7 +53,7 @@ func main() {
 
 	jwt, err := jwt.New()
 	if err != nil{
-		l.ErrorContext(ctx, "failed in generate jwt", "error", err)
+		l.ErrorContext(ctx, "failed in generate jwt", err)
 		os.Exit(1)
 	}
 
@@ -65,14 +65,14 @@ func main() {
 
 	go func(){
 		if err := grpcServer.Run(); err != nil{
-			l.ErrorContext(ctx, "failed in run server", "error", err)
+			l.ErrorContext(ctx, "failed in run server", err)
 			os.Exit(1)
 		}
 	}()
 
 	go func(){
 		if err := httpServer.Run(); err != nil{
-			l.ErrorContext(ctx, "failed in run server", "error", err)
+			l.ErrorContext(ctx, "failed in run server", err)
 			os.Exit(1)
 		}
 	}()	
@@ -89,7 +89,7 @@ func main() {
 
 	go func(){
 		<- timer.C
-		l.ErrorContext(ctx, "failed in run server", "error", err)
+		l.ErrorContext(ctx, "failed in run server", err)
 		os.Exit(1)
 	}()
 

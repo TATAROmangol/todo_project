@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"todo/internal/entities"
+	"todo/pkg/logger"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -23,6 +24,7 @@ func (r *Repository) Get(ctx context.Context, userId int) ([]entities.Task, erro
 		WHERE user_id = $1
 	`)
 	if err != nil {
+		logger.GetFromCtx(ctx).ErrorContext(ctx, ErrCreateSTMT, err)
 		return nil, err
 	}
 	defer stmt.Close()
@@ -30,6 +32,7 @@ func (r *Repository) Get(ctx context.Context, userId int) ([]entities.Task, erro
 	var res []entities.Task
 	rows, err := stmt.Query(userId)
 	if err != nil {
+		logger.GetFromCtx(ctx).ErrorContext(ctx, ErrGetTasks, err)
 		return nil, err
 	}
 
@@ -48,12 +51,14 @@ func (r *Repository) Create(ctx context.Context, name string, userId int) (entit
 		VALUES ($1, $2) RETURNING id
 	`)
 	if err != nil {
+		logger.GetFromCtx(ctx).ErrorContext(ctx, ErrCreateSTMT, err)
 		return entities.Task{}, err
 	}
 	defer stmt.Close()
 
 	var id int
 	if err := stmt.QueryRow(name, userId).Scan(&id); err != nil {
+		logger.GetFromCtx(ctx).ErrorContext(ctx, ErrGetID, err)
 		return entities.Task{}, err
 	}
 
@@ -66,11 +71,13 @@ func (r *Repository) Remove(ctx context.Context, id, userId int) error {
 		WHERE id = $1 AND user_id=$2
 		`)
 	if err != nil {
+		logger.GetFromCtx(ctx).ErrorContext(ctx, ErrCreateSTMT, err)
 		return err
 	}
 	defer stmt.Close()
 
 	if _, err := stmt.Exec(id, userId); err != nil {
+		logger.GetFromCtx(ctx).ErrorContext(ctx, ErrRemoveTask, err)
 		return err
 	}
 

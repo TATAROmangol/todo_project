@@ -33,6 +33,6 @@ func (l Logger) InfoContext(ctx context.Context, msg string, args ...any){
 	l.log.InfoContext(ctx, msg, args...)
 }
 
-func (l Logger) ErrorContext(ctx context.Context, msg string, args ...any){
-	l.log.InfoContext(ctx, msg, args...)
+func (l Logger) ErrorContext(ctx context.Context, msg string, err error){
+	l.log.InfoContext(ctx, msg, "error", err)
 }

@@ -1,9 +1,11 @@
 package service
 
+import "context"
+
 type Repo interface {
-	TakenLogin(string) (bool, error)
-	CreateUser(string, string) (int, error)
-	CheckPassword(string, string) (int, error)
+	TakenLogin(context.Context, string) (bool, error)
+	CreateUser(context.Context, string, string) (int, error)
+	CheckPassword(context.Context, string, string) (int, error)
 }
 
 type JWT interface{

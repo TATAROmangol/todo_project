@@ -23,7 +23,6 @@ func InitLogger(pCtx context.Context) func(
 
 		resp, err := handler(ctx, req)
 		if err != nil {
-			logger.GetFromCtx(ctx).ErrorContext(ctx, "error", err)
 			return nil, err
 		}
 
@@ -43,14 +42,11 @@ func Operation() func(
 		handler grpc.UnaryHandler) (any, error) {
 
 		operatiodID := uuid.New()
-		ctx = logger.AppendCtx(ctx, "operation_id", operatiodID.String())
-		ctx = logger.AppendCtx(ctx, "method", info.FullMethod)
-
-		logger.GetFromCtx(ctx).InfoContext(ctx, "grpc server call")
+		ctx = logger.AppendCtx(ctx, OperationId, operatiodID.String())
+		ctx = logger.AppendCtx(ctx, Method, info.FullMethod)
 
 		resp, err := handler(ctx, req)
 		if err != nil {
-			logger.GetFromCtx(ctx).ErrorContext(ctx, "error", err)
 			return nil, err
 		}
 

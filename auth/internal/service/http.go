@@ -1,8 +1,8 @@
 package service
 
 import (
-	"auth/internal/errors"
-	"fmt"
+	"auth/pkg/logger"
+	"context"
 )
 
 type JWTGenerator interface {
@@ -14,48 +14,51 @@ type Auth struct {
 	jwt  JWTGenerator
 }
 
-func (s *Auth) Register(log, pas string) (string, error) {
-	exist, err := s.repo.TakenLogin(log)
+func (s *Auth) Register(ctx context.Context, log, pas string) (string, error) {
+	ctx = logger.AppendCtx(ctx, MethodName, "Register")
+	exist, err := s.repo.TakenLogin(ctx, log)
 	if err != nil {
-		return "", fmt.Errorf("failed in db: %v", err)
+		return "", err
 	}
 	if exist {
-		return "", errors.ErrLoginTaken
+		return "", err
 	}
 
-	id, err := s.repo.CreateUser(log, pas)
+	id, err := s.repo.CreateUser(ctx, log, pas)
 	if err != nil {
-		return "", fmt.Errorf("failed in db: %v", err)
+		return "", err
 	}
 
 	token, err := s.jwt.GenerateToken(id)
 	if err != nil {
-		return "", fmt.Errorf("failed in jwt: %v", err)
+		return "", err
 	}
 
 	return token, nil
 }
 
-func (s *Auth) Login(log, pas string) (string, error) {
-	exist, err := s.repo.TakenLogin(log)
+func (s *Auth) Login(ctx context.Context, log, pas string) (string, error) {
+	ctx = logger.AppendCtx(ctx, MethodName, "Login")
+	exist, err := s.repo.TakenLogin(ctx, log)
 	if err != nil {
-		return "", fmt.Errorf("failed in db: %v", err)
+		return "", err
 	}
 	if !exist {
-		return "", errors.ErrUnknownLogin
+		return "", err
 	}
 
-	id, err := s.repo.CheckPassword(log, pas)
+	id, err := s.repo.CheckPassword(ctx, log, pas)
 	if err != nil {
-		return "", fmt.Errorf("failed in db: %v", err)
+		return "", err
 	}
 	if id == -1 {
-		return "", errors.ErrIncorrectPassword
+		return "", err
 	}
 
 	token, err := s.jwt.GenerateToken(id)
 	if err != nil {
-		return "", fmt.Errorf("failed in jwt: %v", err)
+		logger.GetFromCtx(ctx).ErrorContext(ctx, ErrJWTGetId, err)
+		return "", err
 	}
 
 	return token, nil

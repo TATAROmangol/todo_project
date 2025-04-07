@@ -1,12 +1,18 @@
 package repository
 
 import (
+	"auth/pkg/logger"
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
 )
 
 func TestRepository_TakenLogin(t *testing.T) {
+	ctx := context.Background()
+	l := logger.GetFromTests()
+	ctx = logger.InitFromCtx(ctx, l)
+
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		panic(err)
@@ -51,7 +57,7 @@ func TestRepository_TakenLogin(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockBehavior(tt.login)
-			got, err := r.TakenLogin(tt.login)
+			got, err := r.TakenLogin(ctx, tt.login)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Repository.TakenLogin() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -64,6 +70,10 @@ func TestRepository_TakenLogin(t *testing.T) {
 }
 
 func TestRepository_CreateUser(t *testing.T) {
+	ctx := context.Background()
+	l := logger.GetFromTests()
+	ctx = logger.InitFromCtx(ctx, l)
+
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		panic(err)
@@ -104,7 +114,7 @@ func TestRepository_CreateUser(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockBehavior(tt.args)
-			got, err := r.CreateUser(tt.args.login, tt.args.password)
+			got, err := r.CreateUser(ctx, tt.args.login, tt.args.password)
 			if err != tt.wantErr {
 				t.Errorf("Repository.CreateUser() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -117,6 +127,10 @@ func TestRepository_CreateUser(t *testing.T) {
 }
 
 func TestRepository_CheckPassword(t *testing.T) {
+	ctx := context.Background()
+	l := logger.GetFromTests()
+	ctx = logger.InitFromCtx(ctx, l)
+
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		panic(err)
@@ -173,7 +187,7 @@ func TestRepository_CheckPassword(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockBehavior(tt.args)
 
-			got, err := r.CheckPassword(tt.args.login, tt.args.password)
+			got, err := r.CheckPassword(ctx, tt.args.login, tt.args.password)
 			if err != tt.wantErr {
 				t.Errorf("Repository.CheckPassword() error = %v, wantErr %v", err, tt.wantErr)
 				return

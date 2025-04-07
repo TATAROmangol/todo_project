@@ -32,12 +32,14 @@ func (s *Server) Run() error {
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("%v:%v", s.cfg.Host, s.cfg.Port))
 	if err != nil {
-		return fmt.Errorf("failed create listener from grpc: %v", err)
+		logger.GetFromCtx(s.ctx).ErrorContext(s.ctx, ErrCreateListener, err)
+		return err
 	}
 
 	err = s.server.Serve(lis)
 	if err != nil {
-		return fmt.Errorf("failed in grpc server: %v", err)
+		logger.GetFromCtx(s.ctx).ErrorContext(s.ctx, ErrCreateServer, err)
+		return err
 	}
 
 	return nil

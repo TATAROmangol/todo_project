@@ -2,13 +2,14 @@ package v1
 
 import (
 	"auth/pkg/logger"
+	"context"
 	"encoding/json"
 	"net/http"
 )
 
 type AuthService interface{
-	Register(name string, password string) (string, error)
-	Login(name string, password string) (string, error)
+	Register(ctx context.Context, name string, password string) (string, error)
+	Login(ctx context.Context, name string, password string) (string, error)
 }
 
 type AuthHandler struct{
@@ -37,7 +38,7 @@ func (ah *AuthHandler) Register(w http.ResponseWriter, r *http.Request){
 	}
 	defer r.Body.Close()
 
-	token, err := ah.as.Register(data.Name, data.Password)
+	token, err := ah.as.Register(r.Context(), data.Name, data.Password)
 	if err != nil{
 		WriteError(w, err, http.StatusBadRequest)
 		return
@@ -78,7 +79,7 @@ func (ah *AuthHandler) Login(w http.ResponseWriter, r *http.Request){
 	defer r.Body.Close()
 
 	logger.GetFromCtx(r.Context()).InfoContext(r.Context(), "called")
-	token, err := ah.as.Login(data.Name, data.Password)
+	token, err := ah.as.Login(r.Context(), data.Name, data.Password)
 	if err != nil{
 		WriteError(w, err, http.StatusBadRequest)
 		return

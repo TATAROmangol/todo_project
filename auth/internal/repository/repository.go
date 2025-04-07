@@ -1,8 +1,9 @@
 package repository
 
 import (
+	"auth/pkg/logger"
+	"context"
 	"database/sql"
-	"fmt"
 )
 
 type Repository struct{
@@ -13,7 +14,7 @@ func New(db *sql.DB) *Repository{
 	return &Repository{db}
 }
 
-func (r *Repository) TakenLogin(login string) (bool, error){
+func (r *Repository) TakenLogin(ctx context.Context,login string) (bool, error){
 	stmt, err := r.db.Prepare(`
 		SELECT EXISTS(
 			SELECT 1
@@ -22,49 +23,55 @@ func (r *Repository) TakenLogin(login string) (bool, error){
 		)
 	`)
 	if err != nil{
-		return true, fmt.Errorf("failed in check login: %v", err)
+		logger.GetFromCtx(ctx).ErrorContext(ctx, ErrCreateSTMT, err)
+		return true, err
 	}
 
 	var exist bool 
 	if err := stmt.QueryRow(login).Scan(&exist); err != nil{
-		return true, fmt.Errorf("failed in check login: %v", err)
+		logger.GetFromCtx(ctx).ErrorContext(ctx, ErrCheckLogin, err)
+		return true, err
 	}
 
 	return exist, nil
 }
 
-func (r *Repository) CreateUser(login, password string) (int, error){
+func (r *Repository) CreateUser(ctx context.Context, login, password string) (int, error){
 	stmt, err := r.db.Prepare(`
 		INSERT INTO users (login, password)
 		VALUES ($1, $2) 
 		RETURNING id
 	`)
 	if err != nil {
-		return -1, fmt.Errorf("failed create user: %v", err)
+		logger.GetFromCtx(ctx).ErrorContext(ctx, ErrCreateSTMT, err)
+		return -1, err
 	}
 	defer stmt.Close()
 
 	var id int
 	if err := stmt.QueryRow(login, password).Scan(&id); err != nil || id == -1{
-		return -1, fmt.Errorf("failed create user: %v", err)
+		logger.GetFromCtx(ctx).ErrorContext(ctx, ErrCreateUser, err)
+		return -1, err
 	}
 
 	return id, nil
 }
 
-func (r *Repository) CheckPassword(login, password string) (int, error){
+func (r *Repository) CheckPassword(ctx context.Context, login, password string) (int, error){
 	stmt, err := r.db.Prepare(`
 		SELECT id
 		FROM users
 		WHERE login = ($1) AND password = ($2)
 	`)
 	if err != nil{
-		return -1, fmt.Errorf("failed in check user: %v", err)
+		logger.GetFromCtx(ctx).ErrorContext(ctx, ErrCreateSTMT, err)
+		return -1, err
 	}
 
 	id := -1
 	if err := stmt.QueryRow(login, password).Scan(&id); err != nil && err != sql.ErrNoRows{
-		return -1, fmt.Errorf("failed in check user: %v", err)
+		logger.GetFromCtx(ctx).ErrorContext(ctx, ErrCheckUser, err)
+		return -1, err
 	}
 
 	return id, nil

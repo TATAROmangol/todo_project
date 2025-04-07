@@ -25,7 +25,7 @@ func Operation(h func(w http.ResponseWriter, r *http.Request)) func(http.Respons
 
 		ctx := r.Context()
 		ctx = logger.AppendCtx(ctx, OperationKey, operationId)
-		ctx = logger.AppendCtx(ctx, "method path", r.URL.Path)
+		ctx = logger.AppendCtx(ctx, Method, r.URL.Path)
 		logger.GetFromCtx(ctx).InfoContext(ctx, "called method")
 
 		r = r.WithContext(ctx)
@@ -35,8 +35,6 @@ func Operation(h func(w http.ResponseWriter, r *http.Request)) func(http.Respons
 
 func Auth(auther Auther, h func(w http.ResponseWriter, r *http.Request)) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		logger.GetFromCtx(r.Context()).InfoContext(r.Context(), "check auth")
-
 		cookie, err := r.Cookie("jwt_id")
 		if err != nil {
 			WriteError(w, err, 401)
@@ -45,7 +43,6 @@ func Auth(auther Auther, h func(w http.ResponseWriter, r *http.Request)) func(ht
 
 		id, err := auther.GetId(r.Context(), cookie.Value)
 		if err != nil {
-			logger.GetFromCtx(r.Context()).ErrorContext(r.Context(), "failed in auth", "error", err)
 			return
 		}
 

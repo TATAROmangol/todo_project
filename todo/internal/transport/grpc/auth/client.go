@@ -33,7 +33,7 @@ func (c *AuthClient) connect(ctx context.Context) error {
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
-		logger.GetFromCtx(ctx).ErrorContext(ctx, "Failed to connect to Nginx", "error", err)
+		logger.GetFromCtx(ctx).ErrorContext(ctx, ErrConnectNginx, err)
 		return err
 	}
 
@@ -47,6 +47,7 @@ func (c *AuthClient) connect(ctx context.Context) error {
 func (c *AuthClient) GetId(ctx context.Context, token string) (int, error) {
 	if conn == nil {
 		if err := c.connect(ctx); err != nil {
+			logger.GetFromCtx(ctx).ErrorContext(ctx, ErrConnectNginx, err)
 			return -1, err
 		}
 	}
@@ -56,6 +57,7 @@ func (c *AuthClient) GetId(ctx context.Context, token string) (int, error) {
 
 	resp, err := client.GetId(ctx, &authpb.JWTRequest{Token: token})
 	if err != nil{
+		logger.GetFromCtx(ctx).ErrorContext(ctx, ErrGetIdGRPC, err)
 		return 0, err
 	}
 	logger.GetFromCtx(ctx).InfoContext(ctx, "get id true", "id", resp.GetId())
