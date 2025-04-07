@@ -10,18 +10,23 @@ type Service interface {
 	AuthService
 }
 
+type Auther interface{
+	Register(http.ResponseWriter, *http.Request)
+	Login(http.ResponseWriter, *http.Request)
+	LogOut(http.ResponseWriter, *http.Request)
+}
+
 type Router struct {
 	ctx context.Context
 	cfg Config
 	srv *http.Server
 }
 
-func New(ctx context.Context, cfg Config, service Service) *Router {
-	as := NewAuthHandler(service)
-
+func New(ctx context.Context, cfg Config, as Auther) *Router {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/register", InitLoggerCtx(ctx, Operation(as.Register)))
 	mux.HandleFunc("/login", InitLoggerCtx(ctx, Operation(as.Login)))
+	mux.HandleFunc("/logout", InitLoggerCtx(ctx, Operation(as.LogOut)))
 
 	srv := &http.Server{
 		Addr:    cfg.Address,

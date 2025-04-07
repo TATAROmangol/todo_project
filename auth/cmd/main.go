@@ -59,7 +59,9 @@ func main() {
 
 	service := service.NewService(repo, jwt)
 	grpcServer := gv1.New(ctx, cfg.GRPC, &service.Getter)
-	httpServer := v1.New(ctx, cfg.HTTP, &service.Auth)
+
+	handler := v1.NewAuthHandler(&service.Auth)
+	httpServer := v1.New(ctx, cfg.HTTP, handler)
 
 	go func(){
 		if err := grpcServer.Run(); err != nil{

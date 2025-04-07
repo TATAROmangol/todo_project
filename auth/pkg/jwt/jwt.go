@@ -56,8 +56,9 @@ func (j *JWT) GetId(tokenString string) (int, error) {
         return -1, fmt.Errorf("token does not contain exp")
     }
 
-	if _, ok := claims["id"]; !ok{
+	id, ok := claims["id"].(float64)
+	if !ok{
 		return -1, fmt.Errorf("token does not contain id")
 	}
-	return claims["id"].(int), nil
+	return int(id), nil
 }

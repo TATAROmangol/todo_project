@@ -51,11 +51,7 @@ func main() {
 	taskRepo := repository.NewRepository(pq)
 	taskService := service.NewService(taskRepo)
 
-	auther, err := auth.NewAuthClient(ctx, cfg.Auth)
-	if err != nil{
-		l.ErrorContext(ctx, "failed in up migrate", "error", err)
-		os.Exit(1)
-	}
+	auther := auth.NewAuthClient(cfg.Auth)
 
 	router := v1.New(ctx, cfg.Http, taskService, auther)
 

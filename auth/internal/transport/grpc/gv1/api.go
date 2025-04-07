@@ -2,6 +2,7 @@ package gv1
 
 import (
 	ssov1 "auth/pkg/grpc/auth"
+	"auth/pkg/logger"
 	"context"
 	"fmt"
 
@@ -33,6 +34,8 @@ func (s *Api) GetId(
 	if err != nil{
 		return nil, err
 	}
+
+	logger.GetFromCtx(ctx).InfoContext(ctx, "get id", "id", id)
 
 	return &ssov1.IdResponse{Id: int64(id)}, nil
 }

@@ -32,7 +32,8 @@ func New(ctx context.Context, cfg Config, cases Service, auther Auther) *Router 
 }
 
 func (r *Router) Run() error {
-	logger.GetFromCtx(r.ctx).InfoContext(r.ctx, "Run http", "path",r.cfg.Address)
+	r.ctx = logger.AppendCtx(r. ctx, "path",r.cfg.Address)
+	logger.GetFromCtx(r.ctx).InfoContext(r.ctx, "Run http")
 	if err := r.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		return err
 	}

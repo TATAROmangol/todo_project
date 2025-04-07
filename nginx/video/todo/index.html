@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToDo App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>My Tasks</h1>
+            <button id="logoutBtn">Logout</button>
+        </header>
+
+        <div class="todo-app">
+            <div class="task-form">
+                <input type="text" id="taskInput" placeholder="Add new task..." disabled>
+                <button id="addTaskBtn" disabled>Add Task</button>
+            </div>
+
+            <div class="task-list" id="taskList">
+                <div class="loading">Checking authorization...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

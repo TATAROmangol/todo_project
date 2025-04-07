@@ -5,48 +5,63 @@ import (
 	"time"
 	"todo/pkg/logger"
 
+	authpb "todo/pkg/grpc/auth"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	authpb "todo/pkg/grpc/auth"
+)
+
+var (
+	conn   *grpc.ClientConn
+	client authpb.AuthClient
 )
 
 type AuthClient struct {
-	conn   *grpc.ClientConn
-	client authpb.AuthClient
+	cfg Config
 }
 
-func NewAuthClient(ctx context.Context, cfg Config) (*AuthClient, error) {
+func NewAuthClient(cfg Config) *AuthClient {
+	return &AuthClient{cfg}
+}
+
+func (c *AuthClient) connect(ctx context.Context) error {
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
 
-	conn, err := grpc.NewClient(
-		cfg.Address, 
-		grpc.WithTransportCredentials(insecure.NewCredentials()), 
+	con, err := grpc.NewClient(
+		c.cfg.Address,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
 		logger.GetFromCtx(ctx).ErrorContext(ctx, "Failed to connect to Nginx", "error", err)
-		return nil, err
+		return err
 	}
 
-	logger.GetFromCtx(ctx).InfoContext(ctx, "Listen auth", "path",cfg.Address)
+	logger.GetFromCtx(ctx).InfoContext(ctx, "Listen auth", "path", c.cfg.Address)
 
-	return &AuthClient{
-		conn:   conn,
-		client: authpb.NewAuthClient(conn),
-	}, nil
+	conn = con
+	client = authpb.NewAuthClient(conn)
+	return nil
 }
 
 func (c *AuthClient) GetId(ctx context.Context, token string) (int, error) {
+	if conn == nil {
+		if err := c.connect(ctx); err != nil {
+			return -1, err
+		}
+	}
+
 	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
 	defer cancel()
 
-	resp, err := c.client.GetId(ctx, &authpb.JWTRequest{Token: token})
-	if err != nil {
+	resp, err := client.GetId(ctx, &authpb.JWTRequest{Token: token})
+	if err != nil{
 		return 0, err
 	}
-	return int(resp.Id), nil
+	logger.GetFromCtx(ctx).InfoContext(ctx, "get id true", "id", resp.GetId())
+	return int(resp.GetId()), nil
 }
 
 func (c *AuthClient) Close() error {
-	return c.conn.Close()
+	return conn.Close()
 }

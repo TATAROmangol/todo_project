@@ -21,7 +21,7 @@ func Operation(h func(w http.ResponseWriter, r *http.Request)) func(http.Respons
 
 		ctx := r.Context()
 		ctx = logger.AppendCtx(ctx, OperationKey, operationId)
-
+		ctx = logger.AppendCtx(ctx, "method path", r.URL.Path)
 		logger.GetFromCtx(ctx).InfoContext(ctx, "called method")
 
 		r = r.WithContext(ctx)
