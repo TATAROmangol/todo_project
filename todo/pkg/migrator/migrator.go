@@ -15,8 +15,8 @@ type Migrator struct{
 
 func New(dirPath string, dbCfg postgres.Config) (*Migrator, error){
 	dbUrl := fmt.Sprintf(
-		"postgres://%v:%v@%v:%v/%v?sslmode=%v",
-		dbCfg.User, dbCfg.Password, dbCfg.Host, dbCfg.Port, dbCfg.DBName, dbCfg.SSL,
+		"postgres://%v:%v@%v:%v/%v?sslmode=%v&x-migrations-table=%s",
+		dbCfg.User, dbCfg.Password, dbCfg.Host, dbCfg.Port, dbCfg.DBName, dbCfg.SSL, "schema_todo_migrations",
 	)
 
 	m, err := migrate.New(dirPath, dbUrl)

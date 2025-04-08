@@ -47,7 +47,7 @@ func (r *Repository) Get(ctx context.Context, userId int) ([]entities.Task, erro
 
 func (r *Repository) Create(ctx context.Context, name string, userId int) (entities.Task, error) {
 	stmt, err := r.db.Prepare(`
-		INSERT INTO tasks(name)
+		INSERT INTO tasks(name, user_id)
 		VALUES ($1, $2) RETURNING id
 	`)
 	if err != nil {

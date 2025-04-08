@@ -60,7 +60,6 @@ func (c *AuthClient) GetId(ctx context.Context, token string) (int, error) {
 		logger.GetFromCtx(ctx).ErrorContext(ctx, ErrGetIdGRPC, err)
 		return 0, err
 	}
-	logger.GetFromCtx(ctx).InfoContext(ctx, "get id true", "id", resp.GetId())
 	return int(resp.GetId()), nil
 }
 

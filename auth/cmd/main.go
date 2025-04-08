@@ -9,7 +9,7 @@ import (
 	"auth/pkg/jwt"
 	"auth/pkg/logger"
 	"auth/pkg/postgres"
-	"auth/pkg/postgres/migrator"
+	"auth/pkg/migrator"
 	"context"
 	"os"
 	"os/signal"
