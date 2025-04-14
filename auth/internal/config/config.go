@@ -3,6 +3,7 @@ package config
 import (
 	"auth/internal/transport/grpc/gv1"
 	v1 "auth/internal/transport/http/v1"
+	"auth/pkg/migrator"
 	"auth/pkg/postgres"
 	"log"
 )
@@ -11,6 +12,7 @@ type Config struct {
 	HTTP v1.Config
 	GRPC gv1.Config
 	PG   postgres.Config
+	Migrator migrator.Config
 }
 
 func MustLoad() Config {
@@ -29,9 +31,15 @@ func MustLoad() Config {
 		log.Fatalf("failed to load postgres config: %v", err)
 	}
 
+	mig, err := migrator.Load()
+	if err != nil{
+		log.Fatalf("failed to load migrator config: %v", err)
+	}
+
 	return Config{
 		HTTP: http,
 		GRPC: grpc,
 		PG:   pg,
+		Migrator: mig,
 	}
 }

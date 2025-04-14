@@ -10,7 +10,7 @@ import (
 
 func TestRepository_TakenLogin(t *testing.T) {
 	ctx := context.Background()
-	l := logger.GetFromTests()
+	l := logger.New()
 	ctx = logger.InitFromCtx(ctx, l)
 
 	db, mock, err := sqlmock.New()
@@ -71,7 +71,7 @@ func TestRepository_TakenLogin(t *testing.T) {
 
 func TestRepository_CreateUser(t *testing.T) {
 	ctx := context.Background()
-	l := logger.GetFromTests()
+	l := logger.New()
 	ctx = logger.InitFromCtx(ctx, l)
 
 	db, mock, err := sqlmock.New()
@@ -128,7 +128,7 @@ func TestRepository_CreateUser(t *testing.T) {
 
 func TestRepository_CheckPassword(t *testing.T) {
 	ctx := context.Background()
-	l := logger.GetFromTests()
+	l := logger.New()
 	ctx = logger.InitFromCtx(ctx, l)
 
 	db, mock, err := sqlmock.New()

@@ -8,7 +8,7 @@ import (
 )
 
 func NewDB(cfg Config) (*sql.DB, error) {
-	conStr := cfg.GetConnectionString()
+	conStr := cfg.GetConnString()
 	db, err := sql.Open("postgres", conStr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect from postgresql: %v", err)

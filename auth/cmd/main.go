@@ -29,14 +29,14 @@ func main() {
 	l := logger.New()
 	ctx = logger.InitFromCtx(ctx, l)
 
-	db, err := postgres.NewConnect(cfg.PG)
+	db, err := postgres.NewDB(cfg.PG)
 	if err != nil {
 		l.ErrorContext(ctx, "failed to connect postgres", err)
 		os.Exit(1)
 	}
 	defer db.Close()
 
-	m, err := migrator.New(migrationPath, cfg.PG)
+	m, err := migrator.New(migrationPath, cfg.Migrator)
 	if err != nil {
 		l.ErrorContext(ctx, "failed in create migrator", err)
 		os.Exit(1)

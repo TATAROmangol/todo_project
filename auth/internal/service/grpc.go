@@ -4,13 +4,13 @@ import (
 	"auth/pkg/logger"
 	"context"
 )
+//go:generate mockgen -destination=./mock/mock_grpc.go -package=mock -source=grpc.go
 
 type JWTValidator interface{
 	GetId(string) (int, error)
 }
 
 type Getter struct{
-	repo Repo
 	jwt  JWTValidator
 }
 

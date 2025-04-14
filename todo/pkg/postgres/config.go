@@ -2,53 +2,47 @@ package postgres
 
 import (
 	"fmt"
-	"log"
 	"os"
-	"strconv"
 )
 
 type Config struct {
 	Host     string
-	Port     int
+	Port     string
 	User     string
 	Password string
 	DBName   string
 	SSL      string
 }
 
-func MustLoadConfig() Config {
+func Load() (Config, error) {
 	host, exist := os.LookupEnv("PG_HOST")
 	if !exist {
-		log.Fatal("no found env PG_HOST")
+		return Config{}, ErrHost
 	}
 
-	sPort, exist := os.LookupEnv("PG_PORT")
+	port, exist := os.LookupEnv("PG_PORT")
 	if !exist {
-		log.Fatal("no found env PG_PORT")
-	}
-	port, err := strconv.Atoi(sPort)
-	if err != nil {
-		log.Fatal("invalid env PG_PORT")
+		return Config{}, ErrPort
 	}
 
 	user, exist := os.LookupEnv("PG_USER")
 	if !exist {
-		log.Fatal("no found env PG_USER")
+		return Config{}, ErrUser
 	}
 
 	password, exist := os.LookupEnv("PG_PASSWORD")
 	if !exist {
-		log.Fatal("no found env PG_PASSWORD")
+		return Config{}, ErrPassword
 	}
 
 	dbName, exist := os.LookupEnv("PG_DB_NAME")
 	if !exist {
-		log.Fatal("no found env PG_DB_NAME")
+		return Config{}, ErrDBName
 	}
 
 	ssl, exist := os.LookupEnv("PG_SSL")
 	if !exist {
-		log.Fatal("no found env PG_SSL")
+		return Config{}, ErrSSL
 	}
 
 	return Config{
@@ -58,10 +52,10 @@ func MustLoadConfig() Config {
 		Password: password,
 		DBName:   dbName,
 		SSL:      ssl,
-	}
+	}, nil
 }
 
-func (c *Config) GetConnectionString() string {
+func (c *Config) GetConnString() string {
 	return fmt.Sprintf(
 		"host=%v port=%v user=%v password=%v dbname=%v sslmode=%v",
 		c.Host, c.Port, c.User, c.Password, c.DBName, c.SSL,

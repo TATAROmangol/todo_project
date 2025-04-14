@@ -1,7 +1,6 @@
 package migrator
 
 import (
-	"auth/pkg/postgres"
 	"fmt"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -13,13 +12,9 @@ type Migrator struct{
 	m *migrate.Migrate
 }
 
-func New(dirPath string, dbCfg postgres.Config) (*Migrator, error){
-	dbUrl := fmt.Sprintf(
-		"postgres://%v:%v@%v:%v/%v?sslmode=%v&x-migrations-table=%s",
-		dbCfg.User, dbCfg.Password, dbCfg.Host, dbCfg.Port, dbCfg.DBName, dbCfg.SSL, "auth_todo_migrations",
-	)
-
-	m, err := migrate.New(dirPath, dbUrl)
+//dirPath - dir with migrate files
+func New(dirPath string, cfg Config) (*Migrator, error){
+	m, err := migrate.New(dirPath, cfg.address)
 	if err != nil{
 		return nil, fmt.Errorf("failed create migrator, err: %v", err)
 	}

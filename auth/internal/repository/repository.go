@@ -24,13 +24,13 @@ func (r *Repository) TakenLogin(ctx context.Context,login string) (bool, error){
 	`)
 	if err != nil{
 		logger.GetFromCtx(ctx).ErrorContext(ctx, ErrCreateSTMT, err)
-		return true, err
+		return false, err
 	}
 
 	var exist bool 
 	if err := stmt.QueryRow(login).Scan(&exist); err != nil{
 		logger.GetFromCtx(ctx).ErrorContext(ctx, ErrCheckLogin, err)
-		return true, err
+		return false, err
 	}
 
 	return exist, nil

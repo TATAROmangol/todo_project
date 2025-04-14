@@ -35,7 +35,7 @@ func main() {
 	}
 	l.InfoContext(ctx, "database loaded")
 
-	m, err := migrator.New(migrationPath, cfg.Repo)
+	m, err := migrator.New(migrationPath, cfg.Migrator)
 	if err != nil {
 		l.ErrorContext(ctx, "failed in create migrator", err)
 		os.Exit(1)

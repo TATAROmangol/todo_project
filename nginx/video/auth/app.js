@@ -16,15 +16,22 @@ document.addEventListener('DOMContentLoaded', function() {
             
             btn.classList.add('active');
             document.getElementById(tabId).classList.add('active');
+            clearMessage();
         });
     });
 
     // Login handler
     loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
+        clearMessage();
         
-        const username = document.getElementById('loginName').value;
+        const username = document.getElementById('loginName').value.trim();
         const password = document.getElementById('loginPassword').value;
+        
+        if (!username || !password) {
+            showMessage('Please fill in all fields', 'error');
+            return;
+        }
         
         try {
             const response = await fetch(`${API_BASE}/login`, {
@@ -36,16 +43,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     name: username,
                     password: password
                 }),
-                credentials: 'include' // Для работы с cookies
+                credentials: 'include'
             });
-
+            
             if (!response.ok) {
-                throw new Error('Login failed');
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             showMessage('Login successful! Redirecting...', 'success');
             
-            // Переход на сервис задач через 1 секунду
             setTimeout(() => {
                 window.location.href = '/todo/';
             }, 1000);
@@ -58,9 +64,27 @@ document.addEventListener('DOMContentLoaded', function() {
     // Register handler
     registerForm.addEventListener('submit', async function(e) {
         e.preventDefault();
+        clearMessage();
         
-        const username = document.getElementById('registerName').value;
+        const username = document.getElementById('registerName').value.trim();
         const password = document.getElementById('registerPassword').value;
+        const confirmPassword = document.getElementById('registerConfirmPassword').value;
+        
+        // Validation
+        if (!username || !password || !confirmPassword) {
+            showMessage('Please fill in all fields', 'error');
+            return;
+        }
+        
+        if (password !== confirmPassword) {
+            showMessage('Passwords do not match', 'error');
+            return;
+        }
+        
+        if (password.length < 6) {
+            showMessage('Password must be at least 6 characters', 'error');
+            return;
+        }
         
         try {
             const response = await fetch(`${API_BASE}/register`, {
@@ -72,16 +96,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     name: username,
                     password: password
                 }),
-                credentials: 'include' // Для работы с cookies
+                credentials: 'include'
             });
-
+            
             if (!response.ok) {
-                throw new Error('Registration failed');
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             showMessage('Registration successful! Redirecting...', 'success');
             
-            // Переход на сервис задач через 1 секунду
             setTimeout(() => {
                 window.location.href = '/todo/';
             }, 1000);
@@ -94,10 +117,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function showMessage(message, type) {
         messageDiv.textContent = message;
         messageDiv.className = `message ${type}`;
-        
-        setTimeout(() => {
-            messageDiv.textContent = '';
-            messageDiv.className = 'message';
-        }, 3000);
+    }
+    
+    function clearMessage() {
+        messageDiv.textContent = '';
+        messageDiv.className = 'message';
     }
 });

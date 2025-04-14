@@ -51,6 +51,8 @@ func (th *TaskHandler) Post(w http.ResponseWriter, r *http.Request) {
 		WriteError(w, err, 404)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (th *TaskHandler) Remove(w http.ResponseWriter, r *http.Request) {
@@ -71,6 +73,8 @@ func (th *TaskHandler) Remove(w http.ResponseWriter, r *http.Request) {
 		WriteError(w, err, 404)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (th *TaskHandler) Get(w http.ResponseWriter, r *http.Request) {
@@ -91,4 +95,6 @@ func (th *TaskHandler) Get(w http.ResponseWriter, r *http.Request) {
 		WriteError(w, err, 404)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
 }

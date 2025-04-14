@@ -7,10 +7,11 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func NewConnect(cfg Config) (*sql.DB, error){
-	db, err := sql.Open("postgres", cfg.GetConnectPath())
-	if err != nil{
-		return nil, fmt.Errorf("failed to connect postgres: %v", err)
+func NewDB(cfg Config) (*sql.DB, error) {
+	conStr := cfg.GetConnString()
+	db, err := sql.Open("postgres", conStr)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect from postgresql: %v", err)
 	}
 
 	return db, nil

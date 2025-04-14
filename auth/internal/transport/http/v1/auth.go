@@ -7,6 +7,8 @@ import (
 	"net/http"
 )
 
+//go:generate mockgen -destination=./mock/mock.go -package=mock -source=auth.go
+
 type AuthService interface{
 	Register(ctx context.Context, name string, password string) (string, error)
 	Login(ctx context.Context, name string, password string) (string, error)
@@ -55,7 +57,7 @@ func (ah *AuthHandler) Register(w http.ResponseWriter, r *http.Request){
 	}
 
 	http.SetCookie(w, cookie)
-	w.WriteHeader(http.StatusAccepted)
+	w.WriteHeader(http.StatusOK)
 }
 
 func (ah *AuthHandler) Login(w http.ResponseWriter, r *http.Request){
@@ -63,8 +65,6 @@ func (ah *AuthHandler) Login(w http.ResponseWriter, r *http.Request){
 		WriteError(w, nil, http.StatusMethodNotAllowed)
 		return
 	}
-
-	logger.GetFromCtx(r.Context()).InfoContext(r.Context(), "called")
 
 	type Data struct{
 		Name string `json:"name"`
@@ -96,15 +96,19 @@ func (ah *AuthHandler) Login(w http.ResponseWriter, r *http.Request){
 	}
 
 	http.SetCookie(w, cookie)
-	w.WriteHeader(http.StatusAccepted)
+	w.WriteHeader(http.StatusOK)
 }
 
 func (ah *AuthHandler) LogOut(w http.ResponseWriter, r *http.Request) {
 	cookie := &http.Cookie{
         Name:   "jwt_id",
         Value:  "",
+		Path:     "/", 
+        Domain:   "", 
         MaxAge: -1,
+		HttpOnly: true,
+        SameSite: http.SameSiteLaxMode,
     }
     http.SetCookie(w, cookie)
-    w.WriteHeader(http.StatusAccepted)
+    w.WriteHeader(http.StatusOK)
 }

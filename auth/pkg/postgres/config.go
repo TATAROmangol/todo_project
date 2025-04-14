@@ -3,12 +3,11 @@ package postgres
 import (
 	"fmt"
 	"os"
-	"strconv"
 )
 
 type Config struct {
 	Host     string
-	Port     int
+	Port     string
 	User     string
 	Password string
 	DBName   string
@@ -18,49 +17,47 @@ type Config struct {
 func Load() (Config, error) {
 	host, exist := os.LookupEnv("PG_HOST")
 	if !exist {
-		return Config{}, fmt.Errorf("failed load PG_HOST")
+		return Config{}, ErrHost
 	}
 
-	sPort, exist := os.LookupEnv("PG_PORT")
+	port, exist := os.LookupEnv("PG_PORT")
 	if !exist {
-		return Config{}, fmt.Errorf("failed load PG_PORT")
-	}
-	port, err := strconv.Atoi(sPort)
-	if err != nil {
-		return Config{}, fmt.Errorf("failed load PG_PORT: %v", err)
+		return Config{}, ErrPort
 	}
 
 	user, exist := os.LookupEnv("PG_USER")
 	if !exist {
-		return Config{}, fmt.Errorf("failed load PG_USER")
+		return Config{}, ErrUser
 	}
 
 	password, exist := os.LookupEnv("PG_PASSWORD")
 	if !exist {
-		return Config{}, fmt.Errorf("failed load PG_PASSWORD")
+		return Config{}, ErrPassword
 	}
 
 	dbName, exist := os.LookupEnv("PG_DB_NAME")
 	if !exist {
-		return Config{}, fmt.Errorf("failed load PG_DB_NAME")
+		return Config{}, ErrDBName
 	}
 
 	ssl, exist := os.LookupEnv("PG_SSL")
 	if !exist {
-		return Config{}, fmt.Errorf("failed load PG_SSL")
+		return Config{}, ErrSSL
 	}
 
 	return Config{
-		host,
-		port,
-		user,
-		password,
-		dbName,
-		ssl,
+		Host: host,
+		Port:     port,
+		User:     user,
+		Password: password,
+		DBName:   dbName,
+		SSL:      ssl,
 	}, nil
 }
 
-func (cfg Config) GetConnectPath() string {
-	return fmt.Sprintf("host=%v port=%v user=%v password=%v dbname=%v sslmode=%v",
-		cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.DBName, cfg.SSL)
+func (c *Config) GetConnString() string {
+	return fmt.Sprintf(
+		"host=%v port=%v user=%v password=%v dbname=%v sslmode=%v",
+		c.Host, c.Port, c.User, c.Password, c.DBName, c.SSL,
+	)
 }

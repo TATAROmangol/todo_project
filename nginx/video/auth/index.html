@@ -11,6 +11,11 @@
         <div class="auth-box">
             <h1>Authentication</h1>
             
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="login">Login</button>
+                <button class="tab-btn" data-tab="register">Register</button>
+            </div>
+            
             <div class="tab-content active" id="login">
                 <form id="loginForm">
                     <input type="text" id="loginName" placeholder="Username" required>
@@ -23,6 +28,7 @@
                 <form id="registerForm">
                     <input type="text" id="registerName" placeholder="Username" required>
                     <input type="password" id="registerPassword" placeholder="Password" required>
+                    <input type="password" id="registerConfirmPassword" placeholder="Confirm Password" required>
                     <button type="submit">Register</button>
                 </form>
             </div>

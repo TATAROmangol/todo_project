@@ -2,7 +2,6 @@ package v1
 
 import (
 	"fmt"
-	"log"
 	"os"
 )
 
@@ -10,18 +9,18 @@ type Config struct {
 	Address string
 }
 
-func MustLoadConfig() Config {
+func Load() (Config, error) {
 	host, exist := os.LookupEnv("HTTP_HOST")
 	if !exist {
-		log.Fatal("no found env HTTP_HOST")
+		return Config{}, fmt.Errorf("no found env HTTP_HOST")
 	}
 	port, exist := os.LookupEnv("HTTP_PORT")
 	if !exist {
-		log.Fatal("no found env HTTP_PORT")
+		return Config{}, fmt.Errorf("no found env HTTP_PORT")
 	}
 	httpAddress := fmt.Sprintf("%v:%v", host, port)
 
 	return Config{
 		Address: httpAddress,
-	}
+	}, nil
 }
